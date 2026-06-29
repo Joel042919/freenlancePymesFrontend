@@ -18,7 +18,15 @@ interface Review{
     calificacion:number
 }
 
-const PerfilPyme = ({nombre,descripcion,imagen,urlPaginaWeb,insignias,isVerified,reviews}:EmpresaProp) => {
+const PerfilPyme = ({
+    nombre = "Empresa de Prueba",
+    descripcion = "Descripción de prueba",
+    imagen = "",
+    urlPaginaWeb = "#",
+    insignias = [],
+    isVerified = false,
+    reviews = []
+}:EmpresaProp) => {
   return (
     <div>
         <h1>Empresa {nombre}</h1>
