@@ -31,7 +31,7 @@ const PerfilPyme = ({
     <div>
         <h1>Empresa {nombre}</h1>
         <p>{descripcion}</p>
-        <img src={imagen} alt={nombre} />
+        {imagen && <img src={imagen} alt={nombre} />}
         <a href={urlPaginaWeb} target="_blank" rel="noopener noreferrer">
             Visitar página web
         </a>

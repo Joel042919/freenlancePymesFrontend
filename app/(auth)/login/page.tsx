@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { API_BASE_URL } from "@/lib/api";
+import { setSession } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,7 +32,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,16 +46,18 @@ export default function LoginPage() {
         throw new Error(data.error || "Credenciales incorrectas.");
       }
 
-      // Save token and info
-      localStorage.setItem("jwt_token", data.token);
-      localStorage.setItem("user_email", data.email || email);
-      localStorage.setItem("user_role", data.role || "FREELANCER");
+      setSession({
+        token: data.token,
+        role: data.role || "FREELANCER",
+        email: data.email || email,
+        expiresIn: data.expiresIn,
+      });
 
       setSuccess(true);
 
       setTimeout(() => {
         if (data.role === "PYME") {
-          router.push("/pyme");
+          router.push("/pyme/aplicaciones");
         } else {
           router.push("/freelancer/portafolio/me");
         }
