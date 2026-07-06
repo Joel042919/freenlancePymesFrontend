@@ -48,6 +48,7 @@ export default function LoginPage() {
       localStorage.setItem("jwt_token", data.token);
       localStorage.setItem("user_email", data.email || email);
       localStorage.setItem("user_role", data.role || "FREELANCER");
+      localStorage.setItem("user_id", data.userId);
 
       setSuccess(true);
 
