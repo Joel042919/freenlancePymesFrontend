@@ -1,0 +1,256 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { ShieldCheck, DollarSign, ListChecks, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { apiFetch, ApiError } from "@/lib/api";
+
+interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  budgetType: "FIXED" | "HOURLY" | string;
+  totalBudget: number;
+  status: string;
+  pymeCompanyName: string;
+  pymeVerified: boolean;
+  requiredSkills: string[];
+}
+
+interface StudyModule {
+  week: number;
+  title: string;
+  topics: string[];
+}
+
+interface StudyPlan {
+  skill: string;
+  title: string;
+  description: string;
+  duration: string;
+  modules: StudyModule[];
+}
+
+interface SkillGapBody {
+  error: string;
+  missingSkills: string[];
+  studyPlans: Record<string, StudyPlan>;
+}
+
+export default function OfferDetailPage() {
+  const params = useParams<{ offerId: string }>();
+  const router = useRouter();
+
+  const [offer, setOffer] = useState<Offer | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  const [proposedAmount, setProposedAmount] = useState("");
+  const [estimatedDays, setEstimatedDays] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [skillGap, setSkillGap] = useState<SkillGapBody | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    apiFetch(`/marketplace/offers/${params.offerId}`)
+      .then((data) => setOffer(data))
+      .catch((err: ApiError) => setLoadError(err.message))
+      .finally(() => setLoading(false));
+  }, [params.offerId]);
+
+  const handleApply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError("");
+    setSkillGap(null);
+
+    const amount = Number(proposedAmount);
+    const days = Number(estimatedDays);
+
+    if (!amount || amount <= 0) {
+      setSubmitError("El monto propuesto debe ser mayor a 0.");
+      return;
+    }
+    if (!days || days <= 0) {
+      setSubmitError("Los días estimados deben ser mayor a 0.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await apiFetch(`/marketplace/offers/${params.offerId}/apply`, {
+        method: "POST",
+        body: JSON.stringify({ proposedAmount: amount, estimatedDays: days }),
+      });
+      setSuccess(true);
+    } catch (err: any) {
+      if (err instanceof ApiError && err.status === 400 && err.body?.missingSkills) {
+        setSkillGap(err.body as SkillGapBody);
+      } else {
+        setSubmitError(err.message || "No se pudo enviar la postulación.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <p className="text-sm text-slate-400">Cargando oferta...</p>;
+  if (loadError) return <p className="text-sm font-semibold text-red-600">{loadError}</p>;
+  if (!offer) return null;
+
+  const formattedBudget = new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(
+    offer.totalBudget
+  );
+
+  return (
+    <div className="space-y-8">
+      <button
+        onClick={() => router.push("/freelancer/ofertas")}
+        className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-brand-teal"
+      >
+        <ArrowLeft className="h-4 w-4" /> Volver a ofertas
+      </button>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="rounded-3xl border-slate-100 shadow-sm">
+            <CardContent className="space-y-4 p-8">
+              <div className="flex items-center justify-between gap-2">
+                <h1 className="text-2xl font-extrabold text-brand-dark">{offer.title}</h1>
+                <span className="rounded-full bg-brand-light-teal px-3 py-1 text-xs font-bold text-brand-teal">
+                  {offer.status}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
+                <span>{offer.pymeCompanyName}</span>
+                {offer.pymeVerified && (
+                  <span className="flex items-center gap-1 text-brand-purple">
+                    <ShieldCheck className="h-4 w-4" /> Empresa verificada
+                  </span>
+                )}
+              </div>
+
+              <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">{offer.description}</p>
+
+              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
+                <DollarSign className="h-4 w-4 text-brand-teal" />
+                {formattedBudget} {offer.budgetType === "HOURLY" ? "por hora" : "(presupuesto fijo)"}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <ListChecks className="h-4 w-4" /> Habilidades requeridas
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {offer.requiredSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {skillGap && (
+            <Card className="rounded-3xl border-amber-100 bg-amber-50/60 shadow-sm">
+              <CardContent className="space-y-4 p-8">
+                <h2 className="text-lg font-bold text-amber-700">Te faltan habilidades validadas</h2>
+                <p className="text-sm text-amber-700">{skillGap.error}</p>
+                <div className="flex flex-wrap gap-2">
+                  {skillGap.missingSkills.map((skill) => (
+                    <span key={skill} className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="space-y-4">
+                  {Object.entries(skillGap.studyPlans).map(([skill, plan]) => (
+                    <div key={skill} className="rounded-2xl bg-white p-5 shadow-sm">
+                      <h3 className="font-bold text-brand-dark">{plan.title}</h3>
+                      <p className="text-sm text-slate-500">{plan.description}</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-400">Duración: {plan.duration}</p>
+                      <div className="mt-3 space-y-2">
+                        {plan.modules?.map((mod) => (
+                          <div key={mod.week} className="text-sm">
+                            <p className="font-semibold text-slate-700">{mod.title}</p>
+                            <ul className="ml-4 list-disc text-slate-500">
+                              {mod.topics.map((topic) => (
+                                <li key={topic}>{topic}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div>
+          <Card className="rounded-3xl border-slate-100 shadow-sm sticky top-24">
+            <CardContent className="space-y-5 p-8">
+              <h2 className="text-lg font-bold text-brand-dark">Enviar propuesta</h2>
+
+              {success ? (
+                <div className="flex items-center gap-2 rounded-2xl bg-brand-light-teal p-4 text-sm font-semibold text-brand-teal">
+                  <CheckCircle2 className="h-4 w-4" />
+                  ¡Tu propuesta fue enviada! Queda pendiente de revisión.
+                </div>
+              ) : (
+                <form onSubmit={handleApply} className="space-y-4">
+                  {submitError && (
+                    <div className="rounded-2xl bg-red-50 p-3 text-xs font-semibold text-red-600 border border-red-100">
+                      {submitError}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-500">Monto propuesto (USD)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={proposedAmount}
+                      onChange={(e) => setProposedAmount(e.target.value)}
+                      className="rounded-2xl border-slate-200 h-11"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-500">Días estimados</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      value={estimatedDays}
+                      onChange={(e) => setEstimatedDays(e.target.value)}
+                      className="rounded-2xl border-slate-200 h-11"
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full rounded-2xl h-11 bg-brand-teal hover:bg-brand-teal/90 text-white font-bold"
+                  >
+                    {submitting ? "Enviando..." : "Postular a esta oferta"}
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

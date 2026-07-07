@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { API_BASE_URL } from "@/lib/api";
 
 
 export default function RegisterPage() {
@@ -53,7 +54,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
