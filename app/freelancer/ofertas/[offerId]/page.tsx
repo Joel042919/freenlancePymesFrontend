@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ShieldCheck, DollarSign, ListChecks, ArrowLeft, CheckCircle2 } from "lucide-react";
+import {
+  ShieldCheck, DollarSign, ListChecks, ArrowLeft, CheckCircle2,
+  Calendar, Clock, MapPin, Building2,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,10 +18,17 @@ interface Offer {
   description: string;
   budgetType: "FIXED" | "HOURLY" | string;
   totalBudget: number;
+  minBudget?: number;
+  maxBudget?: number;
   status: string;
   pymeCompanyName: string;
   pymeVerified: boolean;
   requiredSkills: string[];
+  duration?: string;
+  modality?: "REMOTE" | "ONSITE" | "HYBRID";
+  applicationDeadline?: string;
+  createdAt?: string;
+  pymeId?: string;
 }
 
 interface StudyModule {
@@ -39,6 +49,24 @@ interface SkillGapBody {
   error: string;
   missingSkills: string[];
   studyPlans: Record<string, StudyPlan>;
+}
+
+const MODALITY_LABELS: Record<string, string> = {
+  REMOTE: "Remoto",
+  ONSITE: "Presencial",
+  HYBRID: "Híbrido",
+};
+
+const MODALITY_ICONS: Record<string, typeof MapPin> = {
+  REMOTE: Clock,
+  ONSITE: Building2,
+  HYBRID: MapPin,
+};
+
+function formatDate(dateStr: string) {
+  return new Intl.DateTimeFormat("es", {
+    dateStyle: "long",
+  }).format(new Date(dateStr));
 }
 
 export default function OfferDetailPage() {
@@ -87,11 +115,11 @@ export default function OfferDetailPage() {
         body: JSON.stringify({ proposedAmount: amount, estimatedDays: days }),
       });
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err instanceof ApiError && err.status === 400 && err.body?.missingSkills) {
         setSkillGap(err.body as SkillGapBody);
       } else {
-        setSubmitError(err.message || "No se pudo enviar la postulación.");
+        setSubmitError(err instanceof Error ? err.message : "No se pudo enviar la postulación.");
       }
     } finally {
       setSubmitting(false);
@@ -106,6 +134,15 @@ export default function OfferDetailPage() {
     offer.totalBudget
   );
 
+  const formattedMin = offer.minBudget
+    ? new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(offer.minBudget)
+    : null;
+  const formattedMax = offer.maxBudget
+    ? new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(offer.maxBudget)
+    : null;
+
+  const ModalityIcon = offer.modality ? MODALITY_ICONS[offer.modality] || MapPin : null;
+
   return (
     <div className="space-y-8">
       <button
@@ -118,7 +155,7 @@ export default function OfferDetailPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Card className="rounded-3xl border-slate-100 shadow-sm">
-            <CardContent className="space-y-4 p-8">
+            <CardContent className="space-y-6 p-8">
               <div className="flex items-center justify-between gap-2">
                 <h1 className="text-2xl font-extrabold text-brand-dark">{offer.title}</h1>
                 <span className="rounded-full bg-brand-light-teal px-3 py-1 text-xs font-bold text-brand-teal">
@@ -135,11 +172,44 @@ export default function OfferDetailPage() {
                 )}
               </div>
 
-              <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">{offer.description}</p>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">
+                {offer.description}
+              </p>
 
-              <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
-                <DollarSign className="h-4 w-4 text-brand-teal" />
-                {formattedBudget} {offer.budgetType === "HOURLY" ? "por hora" : "(presupuesto fijo)"}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
+                  <DollarSign className="h-5 w-5 text-brand-teal shrink-0" />
+                  <span>
+                    {formattedMin && formattedMax
+                      ? `${formattedMin} - ${formattedMax}`
+                      : formattedBudget}
+                    {" "}
+                    <span className="font-normal text-slate-500">
+                      {offer.budgetType === "HOURLY" ? "por hora" : "(presupuesto fijo)"}
+                    </span>
+                  </span>
+                </div>
+
+                {offer.duration && (
+                  <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
+                    <Calendar className="h-5 w-5 text-brand-teal shrink-0" />
+                    <span>Duración: {offer.duration}</span>
+                  </div>
+                )}
+
+                {offer.modality && ModalityIcon && (
+                  <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
+                    <ModalityIcon className="h-5 w-5 text-brand-teal shrink-0" />
+                    <span>Modalidad: {MODALITY_LABELS[offer.modality] || offer.modality}</span>
+                  </div>
+                )}
+
+                {offer.applicationDeadline && (
+                  <div className="flex items-center gap-2 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-brand-dark">
+                    <Clock className="h-5 w-5 text-brand-teal shrink-0" />
+                    <span>Postula antes del {formatDate(offer.applicationDeadline)}</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -157,6 +227,12 @@ export default function OfferDetailPage() {
                   ))}
                 </div>
               </div>
+
+              {offer.createdAt && (
+                <p className="text-xs text-slate-400">
+                  Publicado el {formatDate(offer.createdAt)}
+                </p>
+              )}
             </CardContent>
           </Card>
 

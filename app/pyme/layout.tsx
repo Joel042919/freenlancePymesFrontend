@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Inbox, FileSignature, LogOut } from "lucide-react";
+import { Inbox, FileSignature, Briefcase, LogOut } from "lucide-react";
 import { clearSession } from "@/lib/auth";
 
 const NAV_ITEMS = [
+  { href: "/pyme/ofertas", label: "Mis Ofertas", icon: Briefcase },
   { href: "/pyme/aplicaciones", label: "Postulaciones", icon: Inbox },
   { href: "/pyme/contratos", label: "Contratos", icon: FileSignature },
 ];

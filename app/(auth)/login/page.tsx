@@ -59,7 +59,7 @@ export default function LoginPage() {
         if (data.role === "PYME") {
           router.push("/pyme/aplicaciones");
         } else {
-          router.push("/freelancer/portafolio/me");
+          router.push("/freelancer/ofertas");
         }
       }, 1500);
     } catch (err: any) {
