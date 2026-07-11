@@ -18,12 +18,13 @@ interface Skill {
 interface FormData {
   title: string;
   description: string;
-  budgetType: "FIXED" | "HOURLY";
+  budgetType: "FIJO" | "POR_HORA";
   minBudget: string;
   maxBudget: string;
   totalBudget: string;
   duration: string;
-  modality: "REMOTE" | "ONSITE" | "HYBRID" | "";
+  modality: "REMOTO" | "PRESENCIAL" | "HIBRIDO" | "";
+  projectCategory: string;
   applicationDeadline: string;
   requiredSkills: string[];
 }
@@ -35,12 +36,13 @@ interface FormErrors {
 const INITIAL_FORM: FormData = {
   title: "",
   description: "",
-  budgetType: "FIXED",
+  budgetType: "FIJO",
   minBudget: "",
   maxBudget: "",
   totalBudget: "",
   duration: "",
   modality: "",
+  projectCategory: "",
   applicationDeadline: "",
   requiredSkills: [],
 };
@@ -80,7 +82,7 @@ export default function NuevaOfertaPage() {
     if (!form.description.trim()) errs.description = "La descripción es obligatoria.";
     if (!form.duration.trim()) errs.duration = "Indica la duración estimada.";
 
-    if (form.budgetType === "FIXED") {
+    if (form.budgetType === "FIJO") {
       const total = Number(form.totalBudget);
       if (!total || total <= 0) errs.totalBudget = "Ingresa un presupuesto total válido.";
     } else {
@@ -92,6 +94,7 @@ export default function NuevaOfertaPage() {
     }
 
     if (!form.modality) errs.modality = "Selecciona una modalidad.";
+    if (!form.projectCategory) errs.projectCategory = "Selecciona una categoría.";
     if (!form.applicationDeadline) errs.applicationDeadline = "Selecciona una fecha límite.";
     if (form.requiredSkills.length === 0) errs.requiredSkills = "Agrega al menos una habilidad.";
 
@@ -104,17 +107,24 @@ export default function NuevaOfertaPage() {
     setSubmitError("");
     if (!validate()) return;
 
-    const payload: Record<string, string | number | string[]> = {
+    const durationMatch = form.duration.match(/(\d+)/);
+    const estimatedDays = durationMatch ? parseInt(durationMatch[1], 10) * 30 : 90;
+
+    const requiredSkillIds = form.requiredSkills
+      .map((name) => availableSkills.find((s) => s.name === name)?.id)
+      .filter((id): id is number => id !== undefined);
+
+    const payload: Record<string, unknown> = {
       title: form.title.trim(),
       description: form.description.trim(),
       budgetType: form.budgetType,
-      duration: form.duration.trim(),
+      estimatedDays,
       modality: form.modality,
-      applicationDeadline: form.applicationDeadline,
-      requiredSkills: form.requiredSkills,
+      projectCategory: form.projectCategory,
+      requiredSkillIds,
     };
 
-    if (form.budgetType === "FIXED") {
+    if (form.budgetType === "FIJO") {
       payload.totalBudget = Number(form.totalBudget);
     } else {
       payload.minBudget = Number(form.minBudget);
@@ -123,7 +133,7 @@ export default function NuevaOfertaPage() {
 
     setSubmitting(true);
     try {
-      await apiFetch("/marketplace/offers", {
+      await apiFetch("/offers", {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -259,7 +269,7 @@ export default function NuevaOfertaPage() {
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-slate-500">Tipo de presupuesto</Label>
               <div className="flex gap-3">
-                {(["FIXED", "HOURLY"] as const).map((type) => (
+                {(["FIJO", "POR_HORA"] as const).map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -270,13 +280,13 @@ export default function NuevaOfertaPage() {
                         : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                     }`}
                   >
-                    {type === "FIXED" ? "Presupuesto fijo" : "Por hora"}
+                    {type === "FIJO" ? "Presupuesto fijo" : "Por hora"}
                   </button>
                 ))}
               </div>
             </div>
 
-            {form.budgetType === "FIXED" ? (
+            {form.budgetType === "FIJO" ? (
               <div className="space-y-2">
                 <Label className="text-xs font-semibold text-slate-500">Presupuesto total (USD) *</Label>
                 <Input
@@ -333,9 +343,9 @@ export default function NuevaOfertaPage() {
               <Label className="text-xs font-semibold text-slate-500">Modalidad *</Label>
               <div className="flex flex-wrap gap-3">
                 {([
-                  { value: "REMOTE", label: "Remoto" },
-                  { value: "ONSITE", label: "Presencial" },
-                  { value: "HYBRID", label: "Híbrido" },
+                  { value: "REMOTO", label: "Remoto" },
+                  { value: "PRESENCIAL", label: "Presencial" },
+                  { value: "HIBRIDO", label: "Híbrido" },
                 ] as const).map((opt) => (
                   <button
                     key={opt.value}
@@ -352,6 +362,27 @@ export default function NuevaOfertaPage() {
                 ))}
               </div>
               {errors.modality && <p className="text-xs font-semibold text-red-500">{errors.modality}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-500">Categoría del proyecto *</Label>
+              <select
+                value={form.projectCategory}
+                onChange={(e) => update("projectCategory", e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-light-purple/30"
+              >
+                <option value="">Selecciona una categoría...</option>
+                <option value="DESARROLLO_WEB">Desarrollo Web</option>
+                <option value="DESARROLLO_MOVIL">Desarrollo Móvil</option>
+                <option value="DISENO_GRAFICO">Diseño Gráfico</option>
+                <option value="MARKETING_DIGITAL">Marketing Digital</option>
+                <option value="CONTABILIDAD">Contabilidad</option>
+                <option value="CONSULTORIA">Consultoría</option>
+                <option value="TRADUCCION">Traducción</option>
+                <option value="REDACCION">Redacción</option>
+                <option value="OTROS">Otros</option>
+              </select>
+              {errors.projectCategory && <p className="text-xs font-semibold text-red-500">{errors.projectCategory}</p>}
             </div>
 
             <div className="space-y-2">

@@ -11,20 +11,19 @@ interface MyOffer {
   id: string;
   title: string;
   description: string;
-  budgetType: "FIXED" | "HOURLY" | string;
+  budgetType: "FIJO" | "POR_HORA" | string;
   totalBudget: number;
   status: string;
   requiredSkills: string[];
-  duration?: string;
+  estimatedDays?: number;
   modality?: string;
-  applicationDeadline?: string;
-  applicationCount?: number;
-  createdAt?: string;
+  projectCategory?: string;
+  publishedAt?: string;
 }
 
 function formatBudget(offer: MyOffer) {
   const amount = new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(offer.totalBudget);
-  return offer.budgetType === "HOURLY" ? `${amount} / hora` : `${amount} (fijo)`;
+  return offer.budgetType === "POR_HORA" ? `${amount} / hora` : `${amount} (fijo)`;
 }
 
 export default function MisOfertasPage() {
@@ -33,7 +32,7 @@ export default function MisOfertasPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    apiFetch("/marketplace/offers/my")
+    apiFetch("/offers/pyme")
       .then((data) => setOffers(data))
       .catch((err: ApiError) => setError(err.message));
   }, []);
@@ -42,7 +41,7 @@ export default function MisOfertasPage() {
     if (!window.confirm("¿Estás seguro de eliminar esta oferta?")) return;
     setDeleting(offerId);
     try {
-      await apiFetch(`/marketplace/offers/${offerId}`, { method: "DELETE" });
+      await apiFetch(`/offers/${offerId}`, { method: "DELETE" });
       setOffers((prev) => prev?.filter((o) => o.id !== offerId) ?? null);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "No se pudo eliminar la oferta.");
@@ -169,14 +168,9 @@ export default function MisOfertasPage() {
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" /> {formatBudget(offer)}
                       </span>
-                      {offer.duration && (
+                      {offer.estimatedDays && (
                         <span className="flex items-center gap-1">
-                          <Briefcase className="h-3.5 w-3.5" /> {offer.duration}
-                        </span>
-                      )}
-                      {offer.applicationCount !== undefined && (
-                        <span className="flex items-center gap-1">
-                          <Users className="h-3.5 w-3.5" /> {offer.applicationCount} postulaciones
+                          <Briefcase className="h-3.5 w-3.5" /> {offer.estimatedDays} días
                         </span>
                       )}
                     </div>
