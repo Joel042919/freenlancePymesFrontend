@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, User, Briefcase, Search, FileSignature, LogOut, Menu, X, BookOpen, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useRouter } from "next/navigation";
+import {GraduationCap } from "lucide-react";
+import { clearSession } from "@/lib/auth";
+
+const NAV_ITEMS = [
+  { href: "/freelancer/ofertas", label: "Ofertas", icon: Briefcase },
+  { href: "/freelancer/evaluaciones", label: "Evaluaciones", icon: GraduationCap },
+  { href: "/freelancer/contratos", label: "Contratos", icon: FileSignature },
+  { href: "/freelancer/perfil", label: "Perfil", icon: User },
+];
 
 export default function FreelancerLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
