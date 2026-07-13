@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { setSession } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,19 +45,21 @@ export default function LoginPage() {
         throw new Error(data.error || "Credenciales incorrectas.");
       }
 
-      // Save token and info
-      localStorage.setItem("jwt_token", data.token);
-      localStorage.setItem("user_email", data.email || email);
-      localStorage.setItem("user_role", data.role || "FREELANCER");
+      setSession({
+        token: data.token,
+        role: data.role || "FREELANCER",
+        email: data.email || email,
+        expiresIn: 3600000 // 1 hora u obtenido del backend
+      });
       localStorage.setItem("user_id", data.userId);
 
       setSuccess(true);
 
       setTimeout(() => {
         if (data.role === "PYME") {
-          router.push("/pyme");
+          router.push("/pyme/perfil");
         } else {
-          router.push("/freelancer/portafolio/me");
+          router.push("/freelancer");
         }
       }, 1500);
     } catch (err: any) {
