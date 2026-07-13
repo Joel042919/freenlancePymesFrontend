@@ -5,7 +5,7 @@ const ROLE_PREFIXES: Record<string, string> = {
   "/pyme": "PYME",
 };
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const matchedPrefix = Object.keys(ROLE_PREFIXES).find((prefix) => pathname.startsWith(prefix));

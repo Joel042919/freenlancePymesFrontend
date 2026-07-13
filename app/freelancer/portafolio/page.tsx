@@ -139,7 +139,7 @@ export default function Portafolio() {
       {/* Visor de imágenes (Modal) con Carrusel */}
       {selectedPortfolio && selectedPortfolio.imageUrl && (
         <div 
-          className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/95 z-100 flex flex-col items-center justify-center p-4 animate-in fade-in duration-200"
           onClick={() => setSelectedPortfolio(null)}
         >
           <div className="absolute top-4 left-4 text-white/70 font-medium">
