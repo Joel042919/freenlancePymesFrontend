@@ -112,9 +112,24 @@ export function SkillGapModal({ isOpen, onClose, skillGap }: SkillGapModalProps)
   };
 
   const handleSave = () => {
-    // In a real app, send to backend
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      const savedRoutesRaw = localStorage.getItem('freelancer_routes');
+      const savedRoutes = savedRoutesRaw ? JSON.parse(savedRoutesRaw) : [];
+      
+      const newRoute = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        data: skillGap
+      };
+      
+      savedRoutes.push(newRoute);
+      localStorage.setItem('freelancer_routes', JSON.stringify(savedRoutes));
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      console.error("Error saving route:", e);
+    }
   };
 
   return (

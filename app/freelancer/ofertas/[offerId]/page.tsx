@@ -148,7 +148,7 @@ export default function OfferDetailPage() {
   const ModalityIcon = offer.modality ? MODALITY_ICONS[offer.modality] || MapPin : null;
 
   return (
-    <div className="space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <button
         onClick={() => router.push("/freelancer/ofertas")}
         className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-brand-teal"
@@ -158,7 +158,7 @@ export default function OfferDetailPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-3xl border-slate-100 shadow-sm">
+          <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
             <CardContent className="space-y-6 p-8">
               <div className="flex items-center justify-between gap-2">
                 <h1 className="text-2xl font-extrabold text-brand-dark">{offer.title}</h1>
@@ -248,7 +248,7 @@ export default function OfferDetailPage() {
         </div>
 
         <div>
-          <Card className="rounded-3xl border-slate-100 shadow-sm sticky top-24">
+          <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm sticky top-24">
             <CardContent className="space-y-5 p-8">
               <h2 className="text-lg font-bold text-brand-dark">Enviar propuesta</h2>
 

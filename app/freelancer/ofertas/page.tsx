@@ -46,10 +46,10 @@ export default function OfertasPage() {
   }, [offers, skillFilter]);
 
   return (
-    <div className="space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-extrabold text-brand-dark">Ofertas de proyectos</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-3xl font-extrabold text-brand-dark">Ofertas de proyectos</h1>
+        <p className="text-lg text-slate-500">
           Explora las oportunidades publicadas por las PYMEs y postula con tu propuesta.
         </p>
       </div>
@@ -78,7 +78,7 @@ export default function OfertasPage() {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {filteredOffers.map((offer) => (
             <Link key={offer.id} href={`/freelancer/ofertas/${offer.id}`}>
-              <Card className="h-full rounded-3xl border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-100 transition-shadow cursor-pointer">
+              <Card className="h-full bg-white rounded-[2rem] border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="flex h-full flex-col gap-4 p-6">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-light-teal text-brand-teal">

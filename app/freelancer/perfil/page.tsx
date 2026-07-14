@@ -142,10 +142,10 @@ export default function PerfilPage() {
 
   return (
 
-    <div className="space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <div className="space-y-2">
-        <h1 className="text-2xl font-extrabold text-brand-dark">Mi Perfil</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-3xl font-extrabold text-brand-dark">Mi Perfil</h1>
+        <p className="text-lg text-slate-500">
           Configura tu perfil profesional y declara tus habilidades técnicas.
         </p>
       </div>
@@ -164,7 +164,7 @@ export default function PerfilPage() {
         </div>
       )}
 
-      <Card className="rounded-3xl border-slate-100 shadow-sm">
+      <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
         <CardContent className="p-6 space-y-6">
           <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-light-teal text-brand-teal">
@@ -233,7 +233,7 @@ export default function PerfilPage() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border-slate-100 shadow-sm">
+      <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
         <CardContent className="p-6 space-y-6">
           <div className="pb-4 border-b border-slate-100">
             <h2 className="text-lg font-bold text-brand-dark">Mis habilidades</h2>
@@ -267,7 +267,7 @@ export default function PerfilPage() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl border-slate-100 shadow-sm">
+      <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
         <CardContent className="p-6 space-y-6">
           <div className="pb-4 border-b border-slate-100">
             <h2 className="text-lg font-bold text-brand-dark">Catálogo de habilidades</h2>

@@ -39,10 +39,10 @@ export default function ContractsList({ basePath }: ContractsListProps) {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <div className="space-y-2">
-        <h1 className="text-2xl font-extrabold text-brand-dark">Mis contratos</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-3xl font-extrabold text-brand-dark">Mis contratos</h1>
+        <p className="text-lg text-slate-500">
           Revisa el estado de tus contratos digitales y firma los que estén pendientes.
         </p>
       </div>
@@ -61,7 +61,7 @@ export default function ContractsList({ basePath }: ContractsListProps) {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {contracts.map((contract) => (
             <Link key={contract.id} href={`${basePath}/${contract.id}`}>
-              <Card className="h-full rounded-3xl border-slate-100 shadow-sm hover:shadow-lg hover:shadow-slate-100 transition-shadow cursor-pointer">
+              <Card className="h-full bg-white rounded-[2rem] border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="flex flex-col gap-3 p-6">
                   <div className="flex items-center gap-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-light-purple text-brand-purple">

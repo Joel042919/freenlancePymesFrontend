@@ -156,18 +156,19 @@ const FormularioPortafolio = ({ initialData }: FormularioProps) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-sm border border-slate-100">
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">
-        {initialData ? 'Editar Proyecto' : 'Crear Proyecto de Portafolio'}
-      </h1>
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
+      <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-sm border border-slate-100 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-extrabold text-brand-dark mb-8">
+          {initialData ? 'Editar Proyecto' : 'Crear Proyecto de Portafolio'}
+        </h1>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-1">Título del proyecto</label>
-          <input type="text" id="title" name="title" defaultValue={initialData?.title} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal" required />
+          <label htmlFor="title" className="block text-sm font-bold text-slate-700 mb-2">Título del proyecto</label>
+          <input type="text" id="title" name="title" defaultValue={initialData?.title} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-light-teal transition-all" required />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">Descripción del proyecto</label>
-          <textarea id="description" name="description" defaultValue={initialData?.description} rows={4} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal" required></textarea>
+          <label htmlFor="description" className="block text-sm font-bold text-slate-700 mb-2">Descripción del proyecto</label>
+          <textarea id="description" name="description" defaultValue={initialData?.description} rows={4} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-light-teal transition-all" required></textarea>
         </div>
         
         {existingImages.length > 0 && (
@@ -187,34 +188,35 @@ const FormularioPortafolio = ({ initialData }: FormularioProps) => {
         )}
 
         <div>
-          <label htmlFor="imagenUrl" className="block text-sm font-medium text-slate-700 mb-1">Cargar Nuevas Imágenes</label>
-          <input type="file" multiple accept='.png,.jpg,.jpeg' name="imagenUrl" id="imagenUrl" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-light-teal file:text-brand-teal hover:file:bg-teal-100" />
+          <label htmlFor="imagenUrl" className="block text-sm font-bold text-slate-700 mb-2">Cargar Nuevas Imágenes</label>
+          <input type="file" multiple accept='.png,.jpg,.jpeg' name="imagenUrl" id="imagenUrl" className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-brand-light-teal file:text-brand-teal hover:file:bg-teal-100 transition-colors" />
         </div>
         <div>
-          <label htmlFor="projectUrl" className="block text-sm font-medium text-slate-700 mb-1">Url del proyecto (Opcional)</label>
-          <input type="text" id="projectUrl" name="projectUrl" defaultValue={initialData?.projectUrl} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal" />
+          <label htmlFor="projectUrl" className="block text-sm font-bold text-slate-700 mb-2">Url del proyecto (Opcional)</label>
+          <input type="text" id="projectUrl" name="projectUrl" defaultValue={initialData?.projectUrl} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-light-teal transition-all" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Tecnologías utilizadas</label>
-          <div className="flex gap-2 mb-3">
-            <input type="text" value={tecnologiaInput} onChange={(e) => setTecnologiaInput(e.target.value)} onKeyDown={handleKeyDownChip} placeholder="Ej: Spring Boot" className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-brand-teal focus:outline-none focus:ring-1 focus:ring-brand-teal" />
-            <button type="button" onClick={handleMouseClickChip} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-sm font-medium transition-colors">Añadir</button>
+          <label className="block text-sm font-bold text-slate-700 mb-2">Tecnologías utilizadas</label>
+          <div className="flex gap-3 mb-4">
+            <input type="text" value={tecnologiaInput} onChange={(e) => setTecnologiaInput(e.target.value)} onKeyDown={handleKeyDownChip} placeholder="Ej: React" className="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-brand-teal focus:outline-none focus:ring-2 focus:ring-brand-light-teal transition-all" />
+            <button type="button" onClick={handleMouseClickChip} className="px-6 py-3 bg-slate-100 text-slate-700 rounded-2xl hover:bg-slate-200 text-sm font-bold transition-colors">Añadir</button>
           </div>
           <div className="flex flex-wrap gap-2">
             {tecnologiasUsadas.map((tec, index) => (
-              <span key={index} className="inline-flex items-center gap-1 px-3 py-1 bg-brand-light-purple text-brand-purple rounded-full text-sm">
+              <span key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-brand-light-teal text-brand-teal font-bold rounded-full text-sm">
                 {tec}
-                <button type="button" onClick={() => eliminarTecnologia(tec)} className="text-brand-purple hover:text-purple-900 font-bold ml-1">&times;</button>
+                <button type="button" onClick={() => eliminarTecnologia(tec)} className="text-brand-teal hover:text-teal-900 font-extrabold">&times;</button>
               </span>
             ))}
           </div>
         </div>
-        <div className="pt-4">
-          <button type="submit" disabled={isSubmitting} className="w-full py-2 px-4 bg-brand-teal text-white rounded-md font-medium hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-teal disabled:opacity-50 transition-colors">
+        <div className="pt-6">
+          <button type="submit" disabled={isSubmitting} className="w-full py-4 px-6 bg-brand-teal text-white rounded-2xl font-bold hover:bg-teal-700 focus:outline-none focus:ring-4 focus:ring-brand-light-teal disabled:opacity-50 transition-all text-lg shadow-sm">
             {isSubmitting ? 'Guardando...' : (initialData ? 'Actualizar Proyecto' : 'Guardar Proyecto')}
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 };

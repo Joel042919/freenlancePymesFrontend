@@ -83,21 +83,26 @@ export default function Portafolio() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8 font-sans">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">Mi Portafolio</h1>
-        <Link href="/freelancer/portafolio/crear" className="px-4 py-2 bg-brand-teal text-white rounded-md font-medium hover:bg-teal-700 transition-colors">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-brand-dark">Mi Portafolio</h1>
+          <p className="text-lg text-slate-500 mt-2">Gestiona los proyectos que muestran tus habilidades.</p>
+        </div>
+        <Link href="/freelancer/portafolio/crear" className="px-6 py-3 bg-brand-purple text-white rounded-2xl font-bold hover:bg-brand-purple/90 shadow-sm transition-all">
           Crear Proyecto
         </Link>
       </div>
       <div>
-        <h2 className="text-xl font-semibold text-slate-700 mb-4">Tus proyectos</h2>
+        <h2 className="text-xl font-extrabold text-slate-700 mb-6">Tus proyectos</h2>
         {portafolios.length === 0 ? (
-          <p className="text-slate-500">No tienes proyectos en tu portafolio aún.</p>
+          <div className="bg-white rounded-[2rem] p-12 text-center border border-slate-100 border-dashed">
+            <p className="text-slate-500">No tienes proyectos en tu portafolio aún.</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {portafolios.map((p) => (
-              <div key={p.id} className="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col">
+              <div key={p.id} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all">
                 {p.imageUrl && p.imageUrl.length > 0 ? (
                   <div className="relative group w-full h-48 bg-slate-100">
                     <img 
@@ -115,8 +120,8 @@ export default function Portafolio() {
                 ) : (
                   <div className="w-full h-48 bg-slate-100 flex items-center justify-center text-slate-400">Sin Imagen</div>
                 )}
-                <div className="p-5 flex-1 flex flex-col">
-                  <h3 className="text-lg font-bold text-slate-800 mb-2">{p.title}</h3>
+                <div className="p-8 flex-1 flex flex-col">
+                  <h3 className="text-xl font-extrabold text-brand-dark mb-3">{p.title}</h3>
                   <p className="text-slate-600 text-sm line-clamp-2 mb-4 flex-1">{p.description}</p>
                   <div className="flex justify-between items-center pt-4 border-t border-slate-100">
                     <button 
@@ -125,7 +130,7 @@ export default function Portafolio() {
                     >
                       Eliminar
                     </button>
-                    <Link href={`/freelancer/portafolio/${p.id}`} className="text-sm font-medium text-brand-purple hover:text-purple-700 transition-colors">
+                    <Link href={`/freelancer/portafolio/${p.id}`} className="px-4 py-2 bg-brand-light-teal text-brand-teal rounded-xl text-sm font-bold hover:bg-brand-teal hover:text-white transition-colors">
                       Editar
                     </Link>
                   </div>

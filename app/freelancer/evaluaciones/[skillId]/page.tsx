@@ -72,8 +72,8 @@ export default function QuizPage() {
 
   if (result) {
     return (
-      <div className="mx-auto max-w-lg">
-        <Card className="rounded-3xl border-slate-100 shadow-sm">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20 flex justify-center">
+        <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm w-full max-w-lg">
           <CardContent className="flex flex-col items-center gap-4 p-10 text-center">
             <div
               className={`flex h-16 w-16 items-center justify-center rounded-full ${
@@ -111,7 +111,7 @@ export default function QuizPage() {
   const hasAnswer = answers[currentIndex] !== undefined;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="p-4 md:p-8 max-w-2xl mx-auto space-y-6 pb-20">
       <button
         onClick={() => router.push("/freelancer/evaluaciones")}
         className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-brand-teal"
@@ -119,7 +119,7 @@ export default function QuizPage() {
         <ArrowLeft className="h-4 w-4" /> Salir de la evaluación
       </button>
 
-      <Card className="rounded-3xl border-slate-100 shadow-sm">
+      <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
         <CardContent className="space-y-6 p-8">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">

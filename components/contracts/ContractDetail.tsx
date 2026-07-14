@@ -126,7 +126,7 @@ export default function ContractDetail({ contractId, backHref }: ContractDetailP
   const bothSigned = contract.signedByFreelancer && contract.signedByPyme;
 
   return (
-    <div className="space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8 pb-20">
       <button
         onClick={() => router.push(backHref)}
         className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-brand-purple"
@@ -148,7 +148,7 @@ export default function ContractDetail({ contractId, backHref }: ContractDetailP
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-3xl border-slate-100 shadow-sm">
+          <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm">
             <CardContent className="space-y-4 p-8">
               <div className="flex items-center justify-between gap-2">
                 <h1 className="text-2xl font-extrabold text-brand-dark">{contract.offerTitle}</h1>
@@ -381,7 +381,7 @@ export default function ContractDetail({ contractId, backHref }: ContractDetailP
         </div>
 
         <div>
-          <Card className="rounded-3xl border-slate-100 shadow-sm sticky top-24">
+          <Card className="bg-white rounded-[2rem] border border-slate-100 shadow-sm sticky top-24">
             <CardContent className="space-y-5 p-8">
               <h2 className="text-lg font-bold text-brand-dark">Firma digital</h2>
 
