@@ -36,10 +36,29 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   }
 
   const isJson = response.headers.get("content-type")?.includes("application/json");
-  const data = isJson ? await response.json() : null;
+  let data: any = null;
+  let rawText = "";
+  if (isJson) {
+    data = await response.json();
+  } else {
+    rawText = await response.text().catch(() => "");
+  }
 
   if (!response.ok) {
-    throw new ApiError(data?.error || "Ocurrió un error al conectar con el servidor.", response.status, data);
+    const method = options.method || "GET";
+    let message = data?.error || data?.message || "";
+    if (!message) {
+      if (response.status === 405) {
+        message = `Método ${method} no permitido en ${path} (405).`;
+      } else if (response.status === 404) {
+        message = `Recurso no encontrado: ${path} (404).`;
+      } else if (response.status >= 500) {
+        message = `Error del servidor (${response.status}).`;
+      } else {
+        message = `Error ${response.status} al conectar con el servidor.`;
+      }
+    }
+    throw new ApiError(message, response.status, data || rawText);
   }
 
   return data;
