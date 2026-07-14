@@ -11,20 +11,49 @@ interface MyOffer {
   id: string;
   title: string;
   description: string;
-  budgetType: "FIJO" | "POR_HORA" | string;
-  totalBudget: number;
+  budgetType: string;
+  totalBudget: number | null;
+  minBudget: number | null;
+  maxBudget: number | null;
   status: string;
   requiredSkills: string[];
-  estimatedDays?: number;
-  modality?: string;
-  projectCategory?: string;
-  publishedAt?: string;
+  estimatedDays: number | null;
+  modality: string | null;
+  location: string | null;
+  publishedAt: string | null;
+  companyName: string;
 }
 
 function formatBudget(offer: MyOffer) {
-  const amount = new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(offer.totalBudget);
-  return offer.budgetType === "POR_HORA" ? `${amount} / hora` : `${amount} (fijo)`;
+  if (offer.totalBudget != null) {
+    const amount = new Intl.NumberFormat("es", {
+      style: "currency",
+      currency: "USD",
+    }).format(offer.totalBudget);
+    return offer.budgetType === "POR_HORA"
+      ? `${amount} / hora`
+      : `${amount} (fijo)`;
+  }
+  if (offer.minBudget != null && offer.maxBudget != null) {
+    const min = new Intl.NumberFormat("es", {
+      style: "currency",
+      currency: "USD",
+    }).format(offer.minBudget);
+    const max = new Intl.NumberFormat("es", {
+      style: "currency",
+      currency: "USD",
+    }).format(offer.maxBudget);
+    return `${min} - ${max} / hora`;
+  }
+  return "Presupuesto a definir";
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  ABIERTA: "Abierta",
+  EN_PROCESO: "En proceso",
+  COMPLETADA: "Completada",
+  CANCELADA: "Cancelada",
+};
 
 export default function MisOfertasPage() {
   const [offers, setOffers] = useState<MyOffer[] | null>(null);
@@ -44,7 +73,9 @@ export default function MisOfertasPage() {
       await apiFetch(`/offers/${offerId}`, { method: "DELETE" });
       setOffers((prev) => prev?.filter((o) => o.id !== offerId) ?? null);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "No se pudo eliminar la oferta.");
+      alert(
+        err instanceof Error ? err.message : "No se pudo eliminar la oferta.",
+      );
     } finally {
       setDeleting(null);
     }
@@ -52,15 +83,22 @@ export default function MisOfertasPage() {
 
   const stats = {
     total: offers?.length ?? 0,
-    active: offers?.filter((o) => o.status === "ABIERTA" || o.status === "EN_PROCESO").length ?? 0,
-    closed: offers?.filter((o) => o.status === "COMPLETADA" || o.status === "CANCELADA").length ?? 0,
+    active:
+      offers?.filter((o) => o.status === "ABIERTA" || o.status === "EN_PROCESO")
+        .length ?? 0,
+    closed:
+      offers?.filter(
+        (o) => o.status === "COMPLETADA" || o.status === "CANCELADA",
+      ).length ?? 0,
   };
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-extrabold text-brand-dark">Mis ofertas</h1>
+          <h1 className="text-2xl font-extrabold text-brand-dark">
+            Mis ofertas
+          </h1>
           <p className="text-sm text-slate-500">
             Administra las ofertas de proyectos que has publicado.
           </p>
@@ -79,7 +117,9 @@ export default function MisOfertasPage() {
               <Briefcase className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-brand-dark">{stats.total}</p>
+              <p className="text-2xl font-black text-brand-dark">
+                {stats.total}
+              </p>
               <p className="text-xs font-semibold text-slate-500">Totales</p>
             </div>
           </CardContent>
@@ -90,7 +130,9 @@ export default function MisOfertasPage() {
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-brand-dark">{stats.active}</p>
+              <p className="text-2xl font-black text-brand-dark">
+                {stats.active}
+              </p>
               <p className="text-xs font-semibold text-slate-500">Activas</p>
             </div>
           </CardContent>
@@ -101,7 +143,9 @@ export default function MisOfertasPage() {
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-brand-dark">{stats.closed}</p>
+              <p className="text-2xl font-black text-brand-dark">
+                {stats.closed}
+              </p>
               <p className="text-xs font-semibold text-slate-500">Cerradas</p>
             </div>
           </CardContent>
@@ -121,8 +165,12 @@ export default function MisOfertasPage() {
           <CardContent className="flex flex-col items-center gap-4 py-16">
             <Briefcase className="h-12 w-12 text-slate-300" />
             <div className="text-center">
-              <p className="text-lg font-bold text-slate-400">Aún no has publicado ofertas</p>
-              <p className="text-sm text-slate-400">Crea tu primera oferta para recibir propuestas de freelancers.</p>
+              <p className="text-lg font-bold text-slate-400">
+                Aún no has publicado ofertas
+              </p>
+              <p className="text-sm text-slate-400">
+                Crea tu primera oferta para recibir propuestas de freelancers.
+              </p>
             </div>
             <Link href="/ofertas/nueva">
               <Button className="rounded-2xl h-11 px-5 bg-brand-purple hover:bg-brand-purple/90 text-white font-bold">
@@ -134,24 +182,32 @@ export default function MisOfertasPage() {
       ) : (
         <div className="space-y-4">
           {offers.map((offer) => (
-            <Card key={offer.id} className="rounded-3xl border-slate-100 shadow-sm">
+            <Card
+              key={offer.id}
+              className="rounded-3xl border-slate-100 shadow-sm"
+            >
               <CardContent className="p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-2 min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-brand-dark truncate">{offer.title}</h3>
+                      <h3 className="text-lg font-bold text-brand-dark truncate">
+                        {offer.title}
+                      </h3>
                       <span
                         className={`rounded-full px-3 py-0.5 text-xs font-bold shrink-0 ${
-                          offer.status === "ABIERTA" || offer.status === "EN_PROCESO"
+                          offer.status === "ABIERTA" ||
+                          offer.status === "EN_PROCESO"
                             ? "bg-brand-light-teal text-brand-teal"
                             : "bg-slate-100 text-slate-500"
                         }`}
                       >
-                        {offer.status}
+                        {STATUS_LABELS[offer.status] || offer.status}
                       </span>
                     </div>
 
-                    <p className="text-sm text-slate-500 line-clamp-2">{offer.description}</p>
+                    <p className="text-sm text-slate-500 line-clamp-2">
+                      {offer.description}
+                    </p>
 
                     <div className="flex flex-wrap gap-2">
                       {offer.requiredSkills.map((skill) => (
@@ -170,7 +226,8 @@ export default function MisOfertasPage() {
                       </span>
                       {offer.estimatedDays && (
                         <span className="flex items-center gap-1">
-                          <Briefcase className="h-3.5 w-3.5" /> {offer.estimatedDays} días
+                          <Briefcase className="h-3.5 w-3.5" />{" "}
+                          {offer.estimatedDays} días
                         </span>
                       )}
                     </div>
