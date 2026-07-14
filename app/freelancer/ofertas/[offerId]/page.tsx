@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { apiFetch, ApiError } from "@/lib/api";
+import { SkillGapModal } from "@/components/SkillGapModal";
 
 interface Offer {
   id: string;
@@ -82,6 +83,7 @@ export default function OfferDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [skillGap, setSkillGap] = useState<SkillGapBody | null>(null);
+  const [showSkillGapModal, setShowSkillGapModal] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -95,6 +97,7 @@ export default function OfferDetailPage() {
     e.preventDefault();
     setSubmitError("");
     setSkillGap(null);
+    setShowSkillGapModal(false);
 
     const amount = Number(proposedAmount);
     const days = Number(estimatedDays);
@@ -118,6 +121,7 @@ export default function OfferDetailPage() {
     } catch (err: unknown) {
       if (err instanceof ApiError && err.status === 400 && err.body?.missingSkills) {
         setSkillGap(err.body as SkillGapBody);
+        setShowSkillGapModal(true);
       } else {
         setSubmitError(err instanceof Error ? err.message : "No se pudo enviar la postulación.");
       }
@@ -236,43 +240,11 @@ export default function OfferDetailPage() {
             </CardContent>
           </Card>
 
-          {skillGap && (
-            <Card className="rounded-3xl border-amber-100 bg-amber-50/60 shadow-sm">
-              <CardContent className="space-y-4 p-8">
-                <h2 className="text-lg font-bold text-amber-700">Te faltan habilidades validadas</h2>
-                <p className="text-sm text-amber-700">{skillGap.error}</p>
-                <div className="flex flex-wrap gap-2">
-                  {skillGap.missingSkills.map((skill) => (
-                    <span key={skill} className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="space-y-4">
-                  {Object.entries(skillGap.studyPlans).map(([skill, plan]) => (
-                    <div key={skill} className="rounded-2xl bg-white p-5 shadow-sm">
-                      <h3 className="font-bold text-brand-dark">{plan.title}</h3>
-                      <p className="text-sm text-slate-500">{plan.description}</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-400">Duración: {plan.duration}</p>
-                      <div className="mt-3 space-y-2">
-                        {plan.modules?.map((mod) => (
-                          <div key={mod.week} className="text-sm">
-                            <p className="font-semibold text-slate-700">{mod.title}</p>
-                            <ul className="ml-4 list-disc text-slate-500">
-                              {mod.topics.map((topic) => (
-                                <li key={topic}>{topic}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <SkillGapModal
+            isOpen={showSkillGapModal}
+            onClose={() => setShowSkillGapModal(false)}
+            skillGap={skillGap}
+          />
         </div>
 
         <div>
