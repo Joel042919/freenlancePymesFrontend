@@ -19,28 +19,27 @@ interface OfferData {
   id: string;
   title: string;
   description: string;
-  budgetType: "FIXED" | "HOURLY";
-  totalBudget: number;
-  minBudget?: number;
-  maxBudget?: number;
-  status: string;
-  duration?: string;
-  modality?: "REMOTE" | "ONSITE" | "HYBRID";
-  applicationDeadline?: string;
+  budgetType: string;
+  totalBudget: number | null;
+  minBudget: number | null;
+  maxBudget: number | null;
+  modality: string | null;
+  estimatedDays: number | null;
+  location: string | null;
   requiredSkills: string[];
 }
 
 interface FormState {
   title: string;
   description: string;
-  budgetType: "FIXED" | "HOURLY";
+  budgetType: "FIJO" | "POR_HORA";
   minBudget: string;
   maxBudget: string;
   totalBudget: string;
-  duration: string;
-  modality: "REMOTE" | "ONSITE" | "HYBRID" | "";
-  applicationDeadline: string;
-  requiredSkills: string[];
+  estimatedDays: string;
+  modality: "REMOTO" | "PRESENCIAL" | "HIBRIDO" | "";
+  requiredSkillIds: number[];
+  location: string;
 }
 
 interface FormErrors {
@@ -69,24 +68,31 @@ export default function EditarOfertaPage() {
     }
 
     Promise.all([
-      apiFetch(`/marketplace/offers/${params.offerId}`) as Promise<OfferData>,
+      apiFetch(`/offers/${params.offerId}`) as Promise<OfferData>,
       apiFetch("/marketplace/skills").catch(() => []) as Promise<Skill[]>,
     ])
       .then(([offer, skills]) => {
-        setAvailableSkills(Array.isArray(skills) ? skills : []);
+        const catalog = Array.isArray(skills) ? skills : [];
+        setAvailableSkills(catalog);
+
+        const skillIds = (offer.requiredSkills ?? [])
+          .map((name) => catalog.find((s) => s.name === name)?.id)
+          .filter((id): id is number => id != null);
+
         setForm({
           title: offer.title,
           description: offer.description,
-          budgetType: offer.budgetType,
+          budgetType:
+            offer.budgetType === "FIJO" || offer.budgetType === "POR_HORA"
+              ? offer.budgetType
+              : "FIJO",
           minBudget: offer.minBudget?.toString() || "",
           maxBudget: offer.maxBudget?.toString() || "",
           totalBudget: offer.totalBudget?.toString() || "",
-          duration: offer.duration || "",
+          estimatedDays: offer.estimatedDays?.toString() || "",
           modality: (offer.modality as FormState["modality"]) || "",
-          applicationDeadline: offer.applicationDeadline
-            ? offer.applicationDeadline.split("T")[0]
-            : "",
-          requiredSkills: offer.requiredSkills || [],
+          requiredSkillIds: skillIds,
+          location: offer.location || "",
         });
       })
       .catch((err: ApiError) => setLoadError(err.message))
@@ -103,23 +109,27 @@ export default function EditarOfertaPage() {
     const errs: FormErrors = {};
 
     if (!form.title.trim()) errs.title = "El título es obligatorio.";
-    if (!form.description.trim()) errs.description = "La descripción es obligatoria.";
-    if (!form.duration.trim()) errs.duration = "Indica la duración estimada.";
+    if (!form.description.trim())
+      errs.description = "La descripción es obligatoria.";
+    if (!form.estimatedDays.trim())
+      errs.estimatedDays = "Indica los días estimados.";
 
-    if (form.budgetType === "FIXED") {
+    if (form.budgetType === "FIJO") {
       const total = Number(form.totalBudget);
-      if (!total || total <= 0) errs.totalBudget = "Ingresa un presupuesto total válido.";
+      if (!total || total <= 0)
+        errs.totalBudget = "Ingresa un presupuesto total válido.";
     } else {
       const min = Number(form.minBudget);
       const max = Number(form.maxBudget);
       if (!min || min <= 0) errs.minBudget = "Ingresa un mínimo válido.";
       if (!max || max <= 0) errs.maxBudget = "Ingresa un máximo válido.";
-      if (min && max && min >= max) errs.maxBudget = "El máximo debe ser mayor al mínimo.";
+      if (min && max && min >= max)
+        errs.maxBudget = "El máximo debe ser mayor al mínimo.";
     }
 
     if (!form.modality) errs.modality = "Selecciona una modalidad.";
-    if (!form.applicationDeadline) errs.applicationDeadline = "Selecciona una fecha límite.";
-    if (form.requiredSkills.length === 0) errs.requiredSkills = "Agrega al menos una habilidad.";
+    if (form.requiredSkillIds.length === 0)
+      errs.requiredSkillIds = "Agrega al menos una habilidad.";
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -131,59 +141,73 @@ export default function EditarOfertaPage() {
     setSubmitError("");
     if (!validate()) return;
 
-    const payload: Record<string, string | number | string[]> = {
+    const payload: Record<string, any> = {
       title: form.title.trim(),
       description: form.description.trim(),
       budgetType: form.budgetType,
-      duration: form.duration.trim(),
+      estimatedDays: Number(form.estimatedDays),
       modality: form.modality,
-      applicationDeadline: form.applicationDeadline,
-      requiredSkills: form.requiredSkills,
+      requiredSkillIds: form.requiredSkillIds,
     };
 
-    if (form.budgetType === "FIXED") {
+    if (form.budgetType === "FIJO") {
       payload.totalBudget = Number(form.totalBudget);
     } else {
       payload.minBudget = Number(form.minBudget);
       payload.maxBudget = Number(form.maxBudget);
     }
 
+    if (form.location.trim()) {
+      payload.location = form.location.trim();
+    }
+
     setSubmitting(true);
     try {
-      await apiFetch(`/marketplace/offers/${params.offerId}`, {
+      await apiFetch(`/offers/${params.offerId}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       });
       router.push("/pyme/ofertas");
     } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : "No se pudo actualizar la oferta.");
+      setSubmitError(
+        err instanceof Error ? err.message : "No se pudo actualizar la oferta.",
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const addSkill = (name: string) => {
-    if (form && !form.requiredSkills.includes(name)) {
-      update("requiredSkills", [...form.requiredSkills, name]);
+  const addSkill = (id: number) => {
+    if (!form) return;
+    if (!form.requiredSkillIds.includes(id)) {
+      update("requiredSkillIds", [...form.requiredSkillIds, id]);
     }
     setSkillSearch("");
     setShowSkillDropdown(false);
   };
 
-  const removeSkill = (name: string) => {
+  const removeSkill = (id: number) => {
     if (!form) return;
-    update("requiredSkills", form.requiredSkills.filter((s) => s !== name));
+    update(
+      "requiredSkillIds",
+      form.requiredSkillIds.filter((s) => s !== id),
+    );
   };
 
-  if (loading) return <p className="text-sm text-slate-400">Cargando oferta...</p>;
-  if (loadError) return <p className="text-sm font-semibold text-red-600">{loadError}</p>;
-  if (!form) return null;
+  const skillName = (id: number) =>
+    availableSkills.find((s) => s.id === id)?.name ?? `Skill #${id}`;
 
   const filteredSkills = availableSkills.filter(
     (s) =>
       s.name.toLowerCase().includes(skillSearch.toLowerCase()) &&
-      !form.requiredSkills.includes(s.name)
+      !(form?.requiredSkillIds ?? []).includes(s.id),
   );
+
+  if (loading)
+    return <p className="text-sm text-slate-400">Cargando oferta...</p>;
+  if (loadError)
+    return <p className="text-sm font-semibold text-red-600">{loadError}</p>;
+  if (!form) return null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -195,8 +219,12 @@ export default function EditarOfertaPage() {
       </button>
 
       <div className="space-y-2">
-        <h1 className="text-2xl font-extrabold text-brand-dark">Editar oferta</h1>
-        <p className="text-sm text-slate-500">Actualiza los detalles de tu oferta publicada.</p>
+        <h1 className="text-2xl font-extrabold text-brand-dark">
+          Editar oferta
+        </h1>
+        <p className="text-sm text-slate-500">
+          Actualiza los detalles de tu oferta publicada.
+        </p>
       </div>
 
       {submitError && (
@@ -209,27 +237,41 @@ export default function EditarOfertaPage() {
         <Card className="rounded-3xl border-slate-100 shadow-sm">
           <CardContent className="space-y-5 p-8">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Título del puesto *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Título del puesto *
+              </Label>
               <Input
                 value={form.title}
                 onChange={(e) => update("title", e.target.value)}
                 className="rounded-2xl border-slate-200 h-11"
               />
-              {errors.title && <p className="text-xs font-semibold text-red-500">{errors.title}</p>}
+              {errors.title && (
+                <p className="text-xs font-semibold text-red-500">
+                  {errors.title}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Descripción detallada *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Descripción detallada *
+              </Label>
               <textarea
                 value={form.description}
                 onChange={(e) => update("description", e.target.value)}
                 className="w-full min-h-32 rounded-2xl border border-slate-200 bg-transparent px-4 py-3 text-sm transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
-              {errors.description && <p className="text-xs font-semibold text-red-500">{errors.description}</p>}
+              {errors.description && (
+                <p className="text-xs font-semibold text-red-500">
+                  {errors.description}
+                </p>
+              )}
             </div>
 
             <div className="space-y-3">
-              <Label className="text-xs font-semibold text-slate-500">Habilidades requeridas *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Habilidades requeridas *
+              </Label>
               <div className="relative">
                 <Input
                   value={skillSearch}
@@ -238,35 +280,39 @@ export default function EditarOfertaPage() {
                     setShowSkillDropdown(true);
                   }}
                   onFocus={() => setShowSkillDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowSkillDropdown(false), 200)}
+                  onBlur={() =>
+                    setTimeout(() => setShowSkillDropdown(false), 200)
+                  }
                   className="rounded-2xl border-slate-200 h-11"
                   placeholder="Buscar y seleccionar habilidades..."
                 />
-                {showSkillDropdown && skillSearch && filteredSkills.length > 0 && (
-                  <div className="absolute z-10 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg max-h-48 overflow-y-auto">
-                    {filteredSkills.map((skill) => (
-                      <button
-                        key={skill.id}
-                        type="button"
-                        onMouseDown={() => addSkill(skill.name)}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-brand-light-purple hover:text-brand-purple transition-colors"
-                      >
-                        {skill.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {showSkillDropdown &&
+                  skillSearch &&
+                  filteredSkills.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg max-h-48 overflow-y-auto">
+                      {filteredSkills.map((skill) => (
+                        <button
+                          key={skill.id}
+                          type="button"
+                          onMouseDown={() => addSkill(skill.id)}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-brand-light-purple hover:text-brand-purple transition-colors"
+                        >
+                          {skill.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
               </div>
               <div className="flex flex-wrap gap-2">
-                {form.requiredSkills.map((skill) => (
+                {form.requiredSkillIds.map((id) => (
                   <span
-                    key={skill}
+                    key={id}
                     className="inline-flex items-center gap-1 rounded-full bg-brand-light-purple px-3 py-1 text-xs font-semibold text-brand-purple"
                   >
-                    {skill}
+                    {skillName(id)}
                     <button
                       type="button"
-                      onClick={() => removeSkill(skill)}
+                      onClick={() => removeSkill(id)}
                       className="hover:text-red-600 transition-colors"
                     >
                       <X className="h-3 w-3" />
@@ -274,19 +320,27 @@ export default function EditarOfertaPage() {
                   </span>
                 ))}
               </div>
-              {errors.requiredSkills && <p className="text-xs font-semibold text-red-500">{errors.requiredSkills}</p>}
+              {errors.requiredSkillIds && (
+                <p className="text-xs font-semibold text-red-500">
+                  {errors.requiredSkillIds}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <Card className="rounded-3xl border-slate-100 shadow-sm">
           <CardContent className="space-y-5 p-8">
-            <h2 className="text-lg font-bold text-brand-dark">Presupuesto y condiciones</h2>
+            <h2 className="text-lg font-bold text-brand-dark">
+              Presupuesto y condiciones
+            </h2>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Tipo de presupuesto</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Tipo de presupuesto
+              </Label>
               <div className="flex gap-3">
-                {(["FIXED", "HOURLY"] as const).map((type) => (
+                {(["FIJO", "POR_HORA"] as const).map((type) => (
                   <button
                     key={type}
                     type="button"
@@ -297,15 +351,17 @@ export default function EditarOfertaPage() {
                         : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                     }`}
                   >
-                    {type === "FIXED" ? "Presupuesto fijo" : "Por hora"}
+                    {type === "FIJO" ? "Presupuesto fijo" : "Por hora"}
                   </button>
                 ))}
               </div>
             </div>
 
-            {form.budgetType === "FIXED" ? (
+            {form.budgetType === "FIJO" ? (
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-500">Presupuesto total (USD) *</Label>
+                <Label className="text-xs font-semibold text-slate-500">
+                  Presupuesto total (USD) *
+                </Label>
                 <Input
                   type="number"
                   min={1}
@@ -313,12 +369,18 @@ export default function EditarOfertaPage() {
                   onChange={(e) => update("totalBudget", e.target.value)}
                   className="rounded-2xl border-slate-200 h-11"
                 />
-                {errors.totalBudget && <p className="text-xs font-semibold text-red-500">{errors.totalBudget}</p>}
+                {errors.totalBudget && (
+                  <p className="text-xs font-semibold text-red-500">
+                    {errors.totalBudget}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-500">Mínimo (USD) *</Label>
+                  <Label className="text-xs font-semibold text-slate-500">
+                    Mínimo (USD) *
+                  </Label>
                   <Input
                     type="number"
                     min={1}
@@ -326,10 +388,16 @@ export default function EditarOfertaPage() {
                     onChange={(e) => update("minBudget", e.target.value)}
                     className="rounded-2xl border-slate-200 h-11"
                   />
-                  {errors.minBudget && <p className="text-xs font-semibold text-red-500">{errors.minBudget}</p>}
+                  {errors.minBudget && (
+                    <p className="text-xs font-semibold text-red-500">
+                      {errors.minBudget}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-500">Máximo (USD) *</Label>
+                  <Label className="text-xs font-semibold text-slate-500">
+                    Máximo (USD) *
+                  </Label>
                   <Input
                     type="number"
                     min={1}
@@ -337,29 +405,45 @@ export default function EditarOfertaPage() {
                     onChange={(e) => update("maxBudget", e.target.value)}
                     className="rounded-2xl border-slate-200 h-11"
                   />
-                  {errors.maxBudget && <p className="text-xs font-semibold text-red-500">{errors.maxBudget}</p>}
+                  {errors.maxBudget && (
+                    <p className="text-xs font-semibold text-red-500">
+                      {errors.maxBudget}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Duración estimada *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Días estimados *
+              </Label>
               <Input
-                value={form.duration}
-                onChange={(e) => update("duration", e.target.value)}
+                type="number"
+                min={1}
+                value={form.estimatedDays}
+                onChange={(e) => update("estimatedDays", e.target.value)}
                 className="rounded-2xl border-slate-200 h-11"
               />
-              {errors.duration && <p className="text-xs font-semibold text-red-500">{errors.duration}</p>}
+              {errors.estimatedDays && (
+                <p className="text-xs font-semibold text-red-500">
+                  {errors.estimatedDays}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Modalidad *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Modalidad *
+              </Label>
               <div className="flex flex-wrap gap-3">
-                {([
-                  { value: "REMOTE", label: "Remoto" },
-                  { value: "ONSITE", label: "Presencial" },
-                  { value: "HYBRID", label: "Híbrido" },
-                ] as const).map((opt) => (
+                {(
+                  [
+                    { value: "REMOTO", label: "Remoto" },
+                    { value: "PRESENCIAL", label: "Presencial" },
+                    { value: "HIBRIDO", label: "Híbrido" },
+                  ] as const
+                ).map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
@@ -374,20 +458,23 @@ export default function EditarOfertaPage() {
                   </button>
                 ))}
               </div>
-              {errors.modality && <p className="text-xs font-semibold text-red-500">{errors.modality}</p>}
+              {errors.modality && (
+                <p className="text-xs font-semibold text-red-500">
+                  {errors.modality}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500">Fecha límite de aplicación *</Label>
+              <Label className="text-xs font-semibold text-slate-500">
+                Ubicación
+              </Label>
               <Input
-                type="date"
-                value={form.applicationDeadline}
-                onChange={(e) => update("applicationDeadline", e.target.value)}
+                value={form.location}
+                onChange={(e) => update("location", e.target.value)}
                 className="rounded-2xl border-slate-200 h-11"
+                placeholder="Ej: Lima, Perú"
               />
-              {errors.applicationDeadline && (
-                <p className="text-xs font-semibold text-red-500">{errors.applicationDeadline}</p>
-              )}
             </div>
           </CardContent>
         </Card>
