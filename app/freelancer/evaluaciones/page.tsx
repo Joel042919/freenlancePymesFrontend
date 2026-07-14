@@ -71,7 +71,7 @@ export default function EvaluacionesPage() {
                   </div>
                 ) : (
                   <Link
-                    href={`/freelancer/evaluaciones/${skill.skillId}`}
+                    href={`/freelancer/evaluaciones/evaluar/test-session`}
                     className="flex items-center justify-center gap-1.5 rounded-2xl bg-brand-teal px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-teal/90 transition-colors"
                   >
                     Rendir prueba <ArrowRight className="h-4 w-4" />

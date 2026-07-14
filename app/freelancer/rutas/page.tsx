@@ -40,12 +40,12 @@ export default function RutasPage() {
             SkillUp
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-dark tracking-tight leading-tight">
-            Tus Rutas de <br/> <span className="text-brand-purple">Aprendizaje</span>
+            Tus Rutas de <br /> <span className="text-brand-purple">Aprendizaje</span>
           </h1>
           <p className="text-slate-500 text-lg max-w-md">
             Desarrolla las habilidades técnicas y blandas que te faltan para alcanzar tu máximo potencial.
           </p>
-          
+
           <div className="flex gap-6 pt-4">
             <div>
               <span className="text-4xl font-extrabold text-brand-teal block">+{routes.length}</span>
@@ -57,17 +57,17 @@ export default function RutasPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="md:w-5/12 w-full h-[350px] bg-brand-teal rounded-[2rem] relative overflow-hidden flex flex-col items-center justify-center shadow-inner">
           <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
           <div className="absolute bottom-[-20px] right-[-20px] w-40 h-40 bg-brand-dark/20 rounded-full blur-2xl"></div>
-          
+
           <div className="text-center text-white p-8 relative z-10 flex flex-col items-center">
-             <div className="bg-white/10 p-5 rounded-full mb-6 backdrop-blur-sm border border-white/20">
-               <Target size={64} className="opacity-90" />
-             </div>
-             <h3 className="text-2xl font-bold mb-2">El éxito en tu carrera</h3>
-             <p className="text-white/80 text-sm">depende de mantenerte actualizado</p>
+            <div className="bg-white/10 p-5 rounded-full mb-6 backdrop-blur-sm border border-white/20">
+              <Target size={64} className="opacity-90" />
+            </div>
+            <h3 className="text-2xl font-bold mb-2">El éxito en tu carrera</h3>
+            <p className="text-white/80 text-sm">depende de mantenerte actualizado</p>
           </div>
         </div>
       </div>
@@ -75,59 +75,59 @@ export default function RutasPage() {
       {/* Info Cards Row */}
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-brand-purple rounded-[2rem] p-8 text-white relative overflow-hidden shadow-sm flex flex-col justify-between">
-           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-           <h3 className="text-3xl font-extrabold mb-8 relative z-10">¿Por qué el upskilling es clave?</h3>
-           <div className="space-y-4 relative z-10">
-              <div className="bg-white/10 p-5 rounded-2xl flex justify-between items-center backdrop-blur-sm border border-white/5 transition-colors hover:bg-white/20">
-                 <span className="text-white/90 text-sm font-medium">Empresas que valoran el aprendizaje</span>
-                 <span className="text-3xl font-bold text-white">100%</span>
-              </div>
-              <div className="bg-white/10 p-5 rounded-2xl flex justify-between items-center backdrop-blur-sm border border-white/5 transition-colors hover:bg-white/20">
-                 <span className="text-white/90 text-sm font-medium">Incremento de competitividad</span>
-                 <span className="text-3xl font-bold text-brand-teal bg-white px-3 py-1 rounded-xl">85%</span>
-              </div>
-           </div>
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+          <h3 className="text-3xl font-extrabold mb-8 relative z-10">¿Por qué el upskilling es clave?</h3>
+          <div className="space-y-4 relative z-10">
+            <div className="bg-white/10 p-5 rounded-2xl flex justify-between items-center backdrop-blur-sm border border-white/5 transition-colors hover:bg-white/20">
+              <span className="text-white/90 text-sm font-medium">Empresas que valoran el aprendizaje</span>
+              <span className="text-3xl font-bold text-white">100%</span>
+            </div>
+            <div className="bg-white/10 p-5 rounded-2xl flex justify-between items-center backdrop-blur-sm border border-white/5 transition-colors hover:bg-white/20">
+              <span className="text-white/90 text-sm font-medium">Incremento de competitividad</span>
+              <span className="text-3xl font-bold text-brand-teal bg-white px-3 py-1 rounded-xl">85%</span>
+            </div>
+          </div>
         </div>
         <div className="bg-white rounded-[2rem] p-8 md:p-10 border border-slate-100 shadow-sm flex flex-col justify-center">
-           <h3 className="text-2xl font-extrabold text-brand-dark mb-8">¿Qué obtendrás aquí?</h3>
-           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
-              <div className="space-y-3">
-                 <div className="w-12 h-12 rounded-2xl bg-brand-light-teal text-brand-teal flex items-center justify-center">
-                    <BookOpen size={24} />
-                 </div>
-                 <div>
-                   <h4 className="font-bold text-slate-800 text-sm mb-1">Cursos clave</h4>
-                   <p className="text-xs text-slate-500 leading-relaxed">Contenido enfocado en las necesidades del mercado</p>
-                 </div>
+          <h3 className="text-2xl font-extrabold text-brand-dark mb-8">¿Qué obtendrás aquí?</h3>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-brand-light-teal text-brand-teal flex items-center justify-center">
+                <BookOpen size={24} />
               </div>
-              <div className="space-y-3">
-                 <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 text-brand-purple flex items-center justify-center">
-                    <UserCheck size={24} />
-                 </div>
-                 <div>
-                   <h4 className="font-bold text-slate-800 text-sm mb-1">Mentoría personal</h4>
-                   <p className="text-xs text-slate-500 leading-relaxed">Feedback y acompañamiento en tu ruta</p>
-                 </div>
+              <div>
+                <h4 className="font-bold text-slate-800 text-sm mb-1">Cursos clave</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Contenido enfocado en las necesidades del mercado</p>
               </div>
-              <div className="space-y-3">
-                 <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
-                    <Map size={24} />
-                 </div>
-                 <div>
-                   <h4 className="font-bold text-slate-800 text-sm mb-1">Práctica real</h4>
-                   <p className="text-xs text-slate-500 leading-relaxed">Ejercicios basados en casos de uso reales</p>
-                 </div>
+            </div>
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 text-brand-purple flex items-center justify-center">
+                <UserCheck size={24} />
               </div>
-              <div className="space-y-3">
-                 <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <Clock size={24} />
-                 </div>
-                 <div>
-                   <h4 className="font-bold text-slate-800 text-sm mb-1">A tu propio ritmo</h4>
-                   <p className="text-xs text-slate-500 leading-relaxed">Aprende cuando quieras y donde quieras</p>
-                 </div>
+              <div>
+                <h4 className="font-bold text-slate-800 text-sm mb-1">Mentoría personal</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Feedback y acompañamiento en tu ruta</p>
               </div>
-           </div>
+            </div>
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+                <Map size={24} />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 text-sm mb-1">Práctica real</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Ejercicios basados en casos de uso reales</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Clock size={24} />
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 text-sm mb-1">A tu propio ritmo</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Aprende cuando quieras y donde quieras</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
